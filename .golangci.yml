@@ -11,8 +11,6 @@ linters-settings:
       - style
   gocyclo:
     min-complexity: 15
-  lll:
-    line-length: 150
 
 linters:
   disable-all: true
@@ -35,7 +33,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - lll
     - misspell
     - nakedret
     - noctx
