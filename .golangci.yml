@@ -3,6 +3,8 @@ linters-settings:
     lines: 100
     statements: 50
   gocritic:
+    disabled-checks:
+      - initClause
     enabled-tags:
       - diagnostic
       - experimental
