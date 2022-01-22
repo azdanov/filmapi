@@ -1,9 +1,10 @@
 services:
   db:
-    image: postgres:14-alpine
+    image: postgres:14
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: filmapi
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: filmapi
     volumes:
       - db:/var/lib/postgresql/data
       - ./docker/provision/postgres/init:/docker-entrypoint-initdb.d
