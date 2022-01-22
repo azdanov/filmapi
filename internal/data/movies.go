@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -53,7 +55,36 @@ func (m MovieModel) Insert(movie *Movie) error {
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {
-	return nil, nil
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+        SELECT id, created_at, title, year, runtime, genres, version
+        FROM public.movies
+        WHERE id = $1`
+
+	var movie Movie
+
+	err := m.DB.QueryRow(context.Background(), query, id).Scan(
+		&movie.ID,
+		&movie.CreatedAt,
+		&movie.Title,
+		&movie.Year,
+		&movie.Runtime,
+		&movie.Genres,
+		&movie.Version,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &movie, nil
 }
 
 func (m MovieModel) Update(movie *Movie) error {
