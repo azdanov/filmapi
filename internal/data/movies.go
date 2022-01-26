@@ -44,7 +44,7 @@ type MovieModel struct {
 
 func (m MovieModel) Insert(movie *Movie) error {
 	query := `
-        INSERT INTO public.movies (title, year, runtime, genres) 
+        INSERT INTO movies (title, year, runtime, genres) 
         VALUES ($1, $2, $3, $4)
         RETURNING id, created_at, version`
 
@@ -61,7 +61,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 
 	query := `
         SELECT id, created_at, title, year, runtime, genres, version
-        FROM public.movies
+        FROM movies
         WHERE id = $1`
 
 	var movie Movie
@@ -89,9 +89,9 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 
 func (m MovieModel) Update(movie *Movie) error {
 	query := `
-        UPDATE public.movies 
+        UPDATE movies 
         SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
-        WHERE id = $5
+        WHERE id = $5 AND version = $6
         RETURNING version`
 
 	args := []interface{}{
@@ -100,10 +100,20 @@ func (m MovieModel) Update(movie *Movie) error {
 		movie.Runtime,
 		movie.Genres,
 		movie.ID,
+		movie.Version,
 	}
 
-	return m.DB.QueryRow(context.Background(), query, args...).
-		Scan(&movie.Version)
+	err := m.DB.QueryRow(context.Background(), query, args...).Scan(&movie.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (m MovieModel) Delete(id int64) error {
@@ -112,7 +122,7 @@ func (m MovieModel) Delete(id int64) error {
 	}
 
 	query := `
-        DELETE FROM public.movies
+        DELETE FROM movies
         WHERE id = $1`
 
 	result, err := m.DB.Exec(context.Background(), query, id)

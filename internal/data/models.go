@@ -6,15 +6,20 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-var ErrRecordNotFound = errors.New("record not found")
+var (
+	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
+)
 
 type Models struct {
-	Movies interface {
-		Insert(movie *Movie) error
-		Get(id int64) (*Movie, error)
-		Update(movie *Movie) error
-		Delete(id int64) error
-	}
+	Movies Movies
+}
+
+type Movies interface {
+	Insert(movie *Movie) error
+	Get(id int64) (*Movie, error)
+	Update(movie *Movie) error
+	Delete(id int64) error
 }
 
 func NewModels(db *pgxpool.Pool) Models {
