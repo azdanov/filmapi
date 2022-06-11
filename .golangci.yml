@@ -1,19 +1,10 @@
-linters-settings:
-  funlen:
-    lines: 100
-    statements: 50
-  gocritic:
-    disabled-checks:
-      - initClause
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-  gocyclo:
-    min-complexity: 15
-
+---
+issues:
+  exclude-rules:
+    - linters:
+        - noctx
+        - unparam
+      path: ./*_test.go
 linters:
   disable-all: true
   enable:
@@ -21,22 +12,20 @@ linters:
     - deadcode
     - dogsled
     - dupl
-    - exhaustive
     - exportloopref
     - funlen
-    - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
-    - gofumpt
+    - gofmt
     - goimports
     - goprintffuncname
     - gosec
     - gosimple
     - govet
-    - ineffassign
     - misspell
     - nakedret
+    - nilnil
     - noctx
     - nolintlint
     - revive
@@ -50,10 +39,70 @@ linters:
     - unparam
     - unused
     - varcheck
-    - whitespace
-issues:
-  exclude-rules:
-    - path: ./*_test.go
-      linters:
-        - noctx
-        - unparam
+linters-settings:
+  funlen:
+    lines: 150
+    statements: 50
+  gocritic:
+    disabled-checks:
+      - initClause
+      - docStub
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  gocyclo:
+    min-complexity: 15
+  gofumpt:
+    extra-rules: true
+    lang-version: "1.18"
+  gosimple:
+    go: "1.18"
+  revive:
+    confidence: 0.8
+    ignore-generated-header: false
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: defer
+      - name: dot-imports
+      - name: empty-block
+      - name: error-naming
+      - name: error-return
+      - name: error-strings
+      - name: errorf
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: indent-error-flow
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: redefines-builtin-id
+      - name: struct-tag
+      - name: superfluous-else
+      - name: time-equal
+      - name: time-naming
+      - name: unexported-return
+      - name: unreachable-code
+      - name: unused-parameter
+      - name: var-declaration
+      - name: var-naming
+  stylecheck:
+    go: "1.18"
+  staticcheck:
+    go: "1.18"
+    checks: ["all"]
+  tagliatelle:
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        json: goCamel
+        mapstructure: kebab
+        xml: camel
+        yaml: camel
+      use-field-name: true
