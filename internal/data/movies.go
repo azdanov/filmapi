@@ -55,7 +55,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	args := []interface{}{title, genres, filters.limit(), filters.offset()}
+	args := []any{title, genres, filters.limit(), filters.offset()}
 
 	rows, err := m.DB.Query(ctx, query, args...)
 	if err != nil {
@@ -102,13 +102,12 @@ func (m MovieModel) Insert(movie *Movie) error {
         VALUES ($1, $2, $3, $4)
         RETURNING id, created_at, version`
 
-	args := []interface{}{movie.Title, movie.Year, movie.Runtime, movie.Genres}
+	args := []any{movie.Title, movie.Year, movie.Runtime, movie.Genres}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRow(ctx, query, args...).
-		Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+	return m.DB.QueryRow(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {
@@ -154,7 +153,7 @@ func (m MovieModel) Update(movie *Movie) error {
         WHERE id = $5 AND version = $6
         RETURNING version`
 
-	args := []interface{}{
+	args := []any{
 		movie.Title,
 		movie.Year,
 		movie.Runtime,
