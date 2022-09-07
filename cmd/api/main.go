@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"expvar"
 	"flag"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -80,6 +82,40 @@ func main() {
 	defer db.Close()
 
 	logger.PrintInfo("database connection pool established", nil)
+
+	expvar.NewString("version").Set(version)
+
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return struct {
+			AcquireCount         int64
+			AcquireDuration      time.Duration
+			AcquiredConns        int32
+			CanceledAcquireCount int64
+			ConstructingConns    int32
+			EmptyAcquireCount    int64
+			IdleConns            int32
+			MaxConns             int32
+			TotalConns           int32
+		}{
+			db.Stat().AcquireCount(),
+			db.Stat().AcquireDuration(),
+			db.Stat().AcquiredConns(),
+			db.Stat().CanceledAcquireCount(),
+			db.Stat().ConstructingConns(),
+			db.Stat().EmptyAcquireCount(),
+			db.Stat().IdleConns(),
+			db.Stat().MaxConns(),
+			db.Stat().TotalConns(),
+		}
+	}))
+
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	app := &application{
 		config: cfg,

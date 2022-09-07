@@ -3,6 +3,7 @@ module filmapi.azdanov.dev
 go 1.18
 
 require (
+	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-mail/mail/v2 v2.3.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/julienschmidt/httprouter v1.3.0
