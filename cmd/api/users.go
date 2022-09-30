@@ -67,7 +67,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.background(func() {
 		d := map[string]interface{}{
-			"activationToken": token.Plaintext,
+			"activationToken": token.Token,
 			"userID":          user.ID,
 		}
 
@@ -85,7 +85,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		TokenPlaintext string `json:"token"`
+		Token string `json:"token"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -96,12 +96,12 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 
-	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
+	if data.ValidateTokenPlaintext(v, input.Token); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	user, err := app.models.Users.GetForToken(data.ScopeActivation, input.TokenPlaintext)
+	user, err := app.models.Users.GetForToken(data.ScopeActivation, input.Token)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):

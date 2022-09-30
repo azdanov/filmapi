@@ -7,6 +7,7 @@ require (
 	github.com/go-mail/mail/v2 v2.3.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 )

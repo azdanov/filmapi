@@ -99,3 +99,4 @@ fabric.properties
 
 .air.toml
 tmp/
+bin/

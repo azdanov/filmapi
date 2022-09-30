@@ -4,6 +4,7 @@ import (
 	"context"
 	"expvar"
 	"flag"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -18,7 +19,10 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-const version = "1.0.0"
+var (
+	buildTime string
+	version   string
+)
 
 type config struct {
 	port int
@@ -56,21 +60,33 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://filmapi:secret@localhost/filmapi", "PostgreSQL DSN")
+
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "", "PostgreSQL DSN")
+
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+
 	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "32cb8a7e024879", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "260798f911e5b7", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "FilmApi <no-reply@filmapi.io>", "SMTP sender")
+
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
 	})
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		fmt.Printf("Build time:\t%s\n", buildTime)
+		os.Exit(0)
+	}
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
