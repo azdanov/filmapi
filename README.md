@@ -53,3 +53,22 @@ make db/migrations/new create_movies_table
 make db/migrations/up
 make db/migrations/down
 ```
+
+### Deployment
+
+This will copy setup script from local machine to a virtual machine.
+
+__Replace IP address with your VM's in commands below, Makefile and Caddyfile__
+
+In Caddyfile instead of IP address you can use a domain name that is associated with VM's IP address. Also email will be used for TLS certificate generation.
+
+```bash
+# Copy script
+rsync -rP --delete ./remote/setup root@90.132.252.1:/root
+
+# Run script
+ssh -t root@90.132.252.1 "bash /root/setup/01.sh"
+
+# Copy executable then migrations and apply them
+make production/deploy/api
+```
